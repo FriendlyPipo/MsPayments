@@ -19,12 +19,12 @@ namespace Payments.Infrastructure.RabbitMQ.Connection
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Esperando la inicializacion de Rabbit para Pagos");
+            _logger.LogInformation("Esperando la inicializacion de Rabbit en Payments");
 
             await Task.Delay(3000, stoppingToken); 
             await _rabbitMQConsumer.ConsumeMessagesAsync("payment_queue");
 
-            _logger.LogInformation("Consumidor de Rabbit para Pagos iniciado.");
+            _logger.LogInformation("Consumidores de Rabbit iniciados en Payments.");
         }
     }
 }

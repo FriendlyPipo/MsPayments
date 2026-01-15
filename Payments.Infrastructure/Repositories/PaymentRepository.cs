@@ -35,6 +35,13 @@ namespace Payments.Infrastructure.Repositories
             return await _context.Payments.FirstOrDefaultAsync(p => p.StripeId == stripeId, cancellationToken);
         }
 
+        public async Task<IEnumerable<Payment>> GetPendingPaymentsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Payments
+                .Where(p => p.Status == PaymentStatus.Pendiente)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task UpdateAsync(Payment payment, CancellationToken cancellationToken = default)
         {
             _context.Payments.Update(payment);

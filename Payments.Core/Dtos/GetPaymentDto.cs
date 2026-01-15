@@ -2,7 +2,7 @@ using System;
 
 namespace Payments.Core.Dtos
 {
-    public class CreatePaymentDto
+    public class GetPaymentDto
     {
         public Guid PaymentId { get; set; }
         public Guid BookingId { get; set; }
@@ -11,5 +11,7 @@ namespace Payments.Core.Dtos
         public decimal Total { get; set; }
         public string Currency { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

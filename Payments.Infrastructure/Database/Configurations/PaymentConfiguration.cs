@@ -38,6 +38,12 @@ namespace Payments.Infrastructure.Database.Configurations
                     total => total.Value,
                     value => PaymentTotal.Create(value));
 
+            builder.Property(p => p.Currency)
+                .HasConversion(
+                    currency => currency.Value,
+                    value => PaymentCurrency.Create(value))
+                .HasMaxLength(3);
+
             builder.Property(p => p.Status)
                 .HasConversion<string>();
         }

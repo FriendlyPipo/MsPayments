@@ -1,6 +1,9 @@
-public enum PaymentStatus
+namespace Payments.Domain.Entities
 {
-    Pendiente,
-    Exitoso,
-    Fallido
+    public enum PaymentStatus
+    {
+        Pendiente,
+        Exitoso,
+        Fallido
+    }
 }
