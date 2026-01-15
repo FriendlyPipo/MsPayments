@@ -18,6 +18,7 @@ namespace Payments.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHttpClient();
             var connectionString = configuration.GetConnectionString("PostgresSQLConnection");
             
             services.AddDbContextFactory<PaymentDbContext>(options =>
