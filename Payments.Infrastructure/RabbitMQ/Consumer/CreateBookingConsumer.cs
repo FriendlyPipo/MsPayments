@@ -50,6 +50,8 @@ namespace Payments.Infrastructure.RabbitMQ.Consumer
                         {
                             BookingId = (Guid)bookingData.BookingId,
                             UserId = (Guid)bookingData.UserId,
+                            UserEmail = (string)bookingData.UserEmail,
+                            UserName = (string)bookingData.UserName ?? "Usuario", 
                             Total = (decimal)bookingData.Total,
                             Currency = "USD" 
                         };

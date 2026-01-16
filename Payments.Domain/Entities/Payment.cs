@@ -11,11 +11,13 @@ namespace Payments.Domain.Entities
         public PaymentStripeId StripeId { get; private set; }
         public PaymentTotal Total { get; private set; }
         public PaymentCurrency Currency { get; private set; }
+        public string UserEmail { get; private set; }
+        public string UserName { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
         public PaymentStatus Status { get; private set; }
 
-        private Payment(PaymentId paymentId, BookingId bookingId, UserId userId, PaymentStripeId stripeId, PaymentTotal total, PaymentCurrency currency, DateTime createdAt, DateTime? updatedAt, PaymentStatus status)
+        private Payment(PaymentId paymentId, BookingId bookingId, UserId userId, PaymentStripeId stripeId, PaymentTotal total, PaymentCurrency currency, string userEmail, string userName, DateTime createdAt, DateTime? updatedAt, PaymentStatus status)
         {
             PaymentId = paymentId;
             BookingId = bookingId;
@@ -23,12 +25,14 @@ namespace Payments.Domain.Entities
             StripeId = stripeId;
             Total = total;
             Currency = currency;
+            UserEmail = userEmail;
+            UserName = userName;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             Status = status;
         }
 
-        public static Payment Create(Guid paymentId, Guid bookingId, Guid userId, string stripeId, decimal total, string currency, DateTime createdAt, DateTime? updatedAt, string status)
+        public static Payment Create(Guid paymentId, Guid bookingId, Guid userId, string stripeId, decimal total, string currency, string userEmail, string userName, DateTime createdAt, DateTime? updatedAt, string status)
         {
             if (!Enum.TryParse<PaymentStatus>(status, true, out var paymentStatus))
             {
@@ -42,6 +46,8 @@ namespace Payments.Domain.Entities
                 PaymentStripeId.Create(stripeId),
                 PaymentTotal.Create(total),
                 PaymentCurrency.Create(currency),
+                userEmail,
+                userName,
                 createdAt,
                 updatedAt,
                 paymentStatus
@@ -56,7 +62,7 @@ namespace Payments.Domain.Entities
 
         public void Cancel()
         {
-            Status = PaymentStatus.Fallido; // O podriamos añadir 'Cancelado' al enum si prefieres
+            Status = PaymentStatus.Fallido; 
             UpdatedAt = DateTime.UtcNow;
         }
     }   

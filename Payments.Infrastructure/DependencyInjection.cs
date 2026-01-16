@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payments.Core.Repositories;
 using Payments.Core.Services;
+using Payments.Domain.Entities;
 using Payments.Infrastructure.Database;
 using Payments.Infrastructure.Repositories;
 using Payments.Infrastructure.Services;
@@ -28,9 +29,12 @@ namespace Payments.Infrastructure
                 provider.GetRequiredService<IDbContextFactory<PaymentDbContext>>().CreateDbContext());
 
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<IPdfService<Invoice>, InvoicePdfService>();
             services.AddScoped<IStripeService, StripeService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IUserAuditService, UserAuditService>();
+            services.AddTransient<IUserLogService, UserLogService>();
 
             // RabbitMQ
             services.AddSingleton<IConnectionFactory>(_ =>

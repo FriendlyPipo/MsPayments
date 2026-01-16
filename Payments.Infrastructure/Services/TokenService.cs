@@ -2,9 +2,9 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Payments.Core.Services;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System;
-using System.Net.Http;
 
 namespace Payments.Infrastructure.Services
 {
@@ -34,15 +34,15 @@ namespace Payments.Infrastructure.Services
             var requestContent = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                new KeyValuePair<string, string>("client_id", keycloakSection["ClientId"] ?? string.Empty),
-                new KeyValuePair<string, string>("client_secret", keycloakSection["ClientSecret"] ?? string.Empty)
+                new KeyValuePair<string, string>("client_id", keycloakSection["ClientId"] ?? ""),
+                new KeyValuePair<string, string>("client_secret", keycloakSection["ClientSecret"] ?? "")
             });
 
             var response = await _httpClient.PostAsync(tokenUrl, requestContent);
             response.EnsureSuccessStatusCode();
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
-            if (tokenResponse == null) throw new Exception("Fallo al obtener el token de Keycloak");
+            if (tokenResponse == null) throw new Exception("Token response was null");
 
             _accessToken = tokenResponse.access_token;
             _expiration = DateTime.UtcNow.AddSeconds(tokenResponse.expires_in - 30); 

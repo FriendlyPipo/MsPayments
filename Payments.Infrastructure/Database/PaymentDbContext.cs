@@ -18,6 +18,7 @@ namespace Payments.Infrastructure.Database
         }
 
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
 
         public DbContext DbContext => this;
 

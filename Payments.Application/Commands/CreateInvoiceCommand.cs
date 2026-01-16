@@ -3,13 +3,13 @@ using System;
 
 namespace Payments.Application.Commands
 {
-    public class CreatePaymentCommand : IRequest<string>
+    public class CreateInvoiceCommand : IRequest<bool>
     {
-        public Guid BookingId { get; set; }
+        public Guid PaymentId { get; set; }
         public Guid UserId { get; set; }
-        public string UserEmail { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
         public decimal Total { get; set; }
-        public string Currency { get; set; } = "USD";
+        public string Currency { get; set; } = string.Empty;
     }
 }
