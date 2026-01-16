@@ -8,5 +8,6 @@ namespace Payments.Core.Repositories
     {
         Task CreateAsync(Invoice invoice);
         Task<Invoice?> GetByIdAsync(InvoiceId id);
+        Task<Invoice?> GetByPaymentIdAsync(PaymentId id);
     }
 }

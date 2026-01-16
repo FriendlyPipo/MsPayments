@@ -4,16 +4,23 @@ using Payments.Core.Services;
 using Stripe;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System;
 
 namespace Payments.Infrastructure.Services
 {
     public class StripeService : IStripeService
     {
         private readonly IConfiguration _configuration;
+        private readonly Func<PaymentIntentService> _serviceFactory;
 
-        public StripeService(IConfiguration configuration)
+        public StripeService(IConfiguration configuration) : this(configuration, () => new PaymentIntentService())
+        {
+        }
+
+        public StripeService(IConfiguration configuration, Func<PaymentIntentService> serviceFactory)
         {
             _configuration = configuration;
+            _serviceFactory = serviceFactory;
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
         }
 
@@ -30,7 +37,7 @@ namespace Payments.Infrastructure.Services
                 }
             };
 
-            var service = new PaymentIntentService();
+            var service = _serviceFactory();
             var paymentIntent = await service.CreateAsync(options);
 
             return new StripePaymentIntentDto
@@ -45,7 +52,7 @@ namespace Payments.Infrastructure.Services
 
         public async Task<bool> CancelPaymentIntentAsync(string stripeId)
         {
-            var service = new PaymentIntentService();
+            var service = _serviceFactory();
             var paymentIntent = await service.CancelAsync(stripeId);
             return paymentIntent.Status == "canceled";
         }
@@ -54,7 +61,7 @@ namespace Payments.Infrastructure.Services
         {
             try
             {
-                var service = new PaymentIntentService();
+                var service = _serviceFactory();
                 var paymentIntent = await service.GetAsync(stripeId);
                 return new StripePaymentIntentDto
                 {

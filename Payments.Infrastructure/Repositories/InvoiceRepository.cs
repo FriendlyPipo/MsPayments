@@ -3,6 +3,7 @@ using Payments.Core.Repositories;
 using Payments.Domain.Entities;
 using Payments.Domain.ValueObjects;
 using Payments.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Payments.Infrastructure.Repositories
 {
@@ -24,6 +25,12 @@ namespace Payments.Infrastructure.Repositories
         public async Task<Invoice?> GetByIdAsync(InvoiceId id)
         {
             return await _context.Invoices.FindAsync(id);
+        }
+
+        public async Task<Invoice?> GetByPaymentIdAsync(PaymentId id)
+        {
+            return await _context.Invoices
+                .FirstOrDefaultAsync(i => i.PaymentId == id);
         }
     }
 }

@@ -22,13 +22,26 @@ namespace Payments.Api.Controllers
         {
             try
             {
-                var pdfBytes = await _mediator.Send(new GetInvoicePdfQuery { InvoiceId = id });
+                var pdfBytes = await _mediator.Send(new GetInvoicePdfQuery(id));
                 return File(pdfBytes, "application/pdf", $"factura_{id}.pdf");
             }
             catch (Exception ex)
             {
                 return NotFound(new { Message = ex.Message });
             }
+        }
+
+        [HttpGet("payment/{paymentId}")]
+        public async Task<IActionResult> GetByPaymentId(Guid paymentId)
+        {
+            var result = await _mediator.Send(new GetInvoiceByPaymentIdQuery(paymentId));
+            
+            if (result == null)
+            {
+                return NotFound(new { Message = "Factura no encontrada para el pago especificado" });
+            }
+
+            return Ok(result);
         }
     }
 }

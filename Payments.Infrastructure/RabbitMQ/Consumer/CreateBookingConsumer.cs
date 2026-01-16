@@ -37,32 +37,40 @@ namespace Payments.Infrastructure.RabbitMQ.Consumer
                 var message = Encoding.UTF8.GetString(body);
                 var eventMessage = JsonConvert.DeserializeObject<EventMessage<object>>(message);
 
-                if (eventMessage?.EventType == "CreateBooking")
+                if (eventMessage != null)
                 {
-                    _logger.LogInformation($"Evento CreateBooking recibido: {eventMessage.Data}");
-                    
-                    using (var scope = _serviceProvider.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var bookingData = JsonConvert.DeserializeObject<dynamic>(eventMessage.Data.ToString()!);
-                        
-                        var command = new CreatePaymentCommand
-                        {
-                            BookingId = (Guid)bookingData.BookingId,
-                            UserId = (Guid)bookingData.UserId,
-                            UserEmail = (string)bookingData.UserEmail,
-                            UserName = (string)bookingData.UserName ?? "Usuario", 
-                            Total = (decimal)bookingData.Total,
-                            Currency = "USD" 
-                        };
-
-                        await mediator.Send(command);
-                        _logger.LogInformation($"Pago iniciado para BookingId: {command.BookingId}");
-                    }
+                    await ProcessEventAsync(eventMessage);
                 }
             };
 
             await channel.BasicConsumeAsync(queue: queueName, autoAck: true, consumer: consumer);
+        }
+
+        public async Task ProcessEventAsync(EventMessage<object> eventMessage)
+        {
+            if (eventMessage.EventType == "CreateBooking")
+            {
+                _logger.LogInformation($"Evento CreateBooking recibido: {eventMessage.Data}");
+                
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var bookingData = JsonConvert.DeserializeObject<dynamic>(eventMessage.Data.ToString()!);
+                    
+                    var command = new CreatePaymentCommand
+                    {
+                        BookingId = (Guid)bookingData.BookingId,
+                        UserId = (Guid)bookingData.UserId,
+                        UserEmail = (string)bookingData.UserEmail,
+                        UserName = (string)bookingData.UserName ?? "Usuario", 
+                        Total = (decimal)bookingData.Total,
+                        Currency = "USD" 
+                    };
+
+                    await mediator.Send(command);
+                    _logger.LogInformation($"Pago iniciado para BookingId: {command.BookingId}");
+                }
+            }
         }
     }
 }

@@ -38,36 +38,44 @@ namespace Payments.Infrastructure.RabbitMQ.Consumer
                 var message = Encoding.UTF8.GetString(body);
                 var eventMessage = JsonConvert.DeserializeObject<EventMessage<object>>(message);
 
-                if (eventMessage?.EventType == "UpdateBookingStatus")
+                if (eventMessage != null)
                 {
-                    var statusData = JsonConvert.DeserializeObject<dynamic>(eventMessage.Data.ToString()!);
-                    string newStatus = statusData.Status;
-                    Guid bookingId = statusData.BookingId;
-
-                    if (newStatus == "Cancelado")
-                    {
-                        _logger.LogInformation($"Cancelando pago para reserva con ID: {bookingId}");
-                        
-                        using (var scope = _serviceProvider.CreateScope())
-                        {
-                            var paymentRepo = scope.ServiceProvider.GetRequiredService<IPaymentRepository>();
-                            var stripeService = scope.ServiceProvider.GetRequiredService<IStripeService>();
-
-                            var payment = await paymentRepo.GetPaymentByBookingIdAsync(BookingId.Create(bookingId));
-                            if (payment != null && payment.Status == Domain.Entities.PaymentStatus.Pendiente)
-                            {
-                                await stripeService.CancelPaymentIntentAsync(payment.StripeId.Value);
-                                payment.Cancel();
-                                await paymentRepo.UpdateAsync(payment);
-                                
-                                _logger.LogInformation($"Pago cancelado exitosamente para reserva con ID: {bookingId}");
-                            }
-                        }
-                    }
+                    await ProcessEventAsync(eventMessage);
                 }
             };
 
             await channel.BasicConsumeAsync(queue: queueName, autoAck: true, consumer: consumer);
+        }
+
+        public async Task ProcessEventAsync(EventMessage<object> eventMessage)
+        {
+            if (eventMessage.EventType == "UpdateBookingStatus")
+            {
+                var statusData = JsonConvert.DeserializeObject<dynamic>(eventMessage.Data.ToString()!);
+                string newStatus = statusData.Status;
+                Guid bookingId = statusData.BookingId;
+
+                if (newStatus == "Cancelado")
+                {
+                    _logger.LogInformation($"Cancelando pago para reserva con ID: {bookingId}");
+                    
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var paymentRepo = scope.ServiceProvider.GetRequiredService<IPaymentRepository>();
+                        var stripeService = scope.ServiceProvider.GetRequiredService<IStripeService>();
+
+                        var payment = await paymentRepo.GetPaymentByBookingIdAsync(BookingId.Create(bookingId));
+                        if (payment != null && payment.Status == Domain.Entities.PaymentStatus.Pendiente)
+                        {
+                            await stripeService.CancelPaymentIntentAsync(payment.StripeId.Value);
+                            payment.Cancel();
+                            await paymentRepo.UpdateAsync(payment);
+                            
+                            _logger.LogInformation($"Pago cancelado exitosamente para reserva con ID: {bookingId}");
+                        }
+                    }
+                }
+            }
         }
     }
 }

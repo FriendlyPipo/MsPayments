@@ -6,5 +6,10 @@ namespace Payments.Application.Queries
     public class GetInvoicePdfQuery : IRequest<byte[]>
     {
         public Guid InvoiceId { get; set; }
+
+        public GetInvoicePdfQuery(Guid invoiceId)
+        {
+            InvoiceId = invoiceId;
+        }
     }
 }
